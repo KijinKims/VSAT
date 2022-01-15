@@ -32,7 +32,7 @@ nanozoo/minimap2:2.22--b178b67
 staphb/racon:latest
 nanozoo/medaka:latest
 #blast
-biocontainers/blast:v2.2.31_cv2
+ncbi/blast:latest
 bschiffthaler/diamond:latest
 skkujin/taxonomizr:latest
 #zoonosis

@@ -197,7 +197,8 @@ class Parser:
         post_assembly_all_parser = post_assembly_subparsers.add_parser('all', parents=[shared_parser, post_assembly_input_parser], argument_default=argparse.SUPPRESS)
         post_assembly_all_parser.add_argument('--blast_db_dir', '-d', nargs='?', type=lambda x: parser_path_check(post_assembly_all_parser, valid_dir, x))
         post_assembly_all_parser.add_argument('--blast_db_name', '-n', nargs='?')
-        post_assembly_all_parser.add_argument('--diamond_db', nargs='?', type=lambda x: parser_path_check(post_assembly_all_parser, valid_dir, x))
+        post_assembly_all_parser.add_argument('--diamond_db_dir', nargs='?', type=lambda x: parser_path_check(post_assembly_all_parser, valid_dir, x))
+        post_assembly_all_parser.add_argument('--diamond_db_name', nargs='?')
         post_assembly_all_parser.add_argument('--taxonomizr_db', nargs='?', type=lambda x: parser_path_check(post_assembly_all_parser, valid_file, x))
         
         report_parser = subparsers.add_parser('report')
@@ -233,7 +234,8 @@ class Parser:
 
         build_diamond_parser = build_parsers.add_parser('diamond', parents = [build_shared_parser], argument_default=argparse.SUPPRESS)
         build_diamond_parser.add_argument('--in', '-i', nargs='?', type=lambda x: parser_path_check(build_diamond_parser, valid_fasta, x), required=True)
-        build_diamond_parser.add_argument('--db', '-d', nargs='?', default='%s/diamond/rvdb-prot' % pkgs_dir)
+        build_diamond_parser.add_argument('--outdir', '-o', nargs='?', default='%s/diamond' % pkgs_dir)
+        build_diamond_parser.add_argument('--dbname', nargs='?', default='rvdb-prot')
         build_diamond_parser.add_argument('--taxonmap', nargs='?', type=lambda x: parser_path_check(build_diamond_parser, valid_file, x))
         build_diamond_parser.add_argument('--taxonnodes', nargs='?', type=lambda x: parser_path_check(build_diamond_parser, valid_file, x))
         build_diamond_parser.add_argument('--taxonnames', nargs='?', type=lambda x: parser_path_check(build_diamond_parser, valid_file, x))

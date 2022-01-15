@@ -8,7 +8,6 @@ import os
 from argparse import Namespace
 import shutil
 import tarfile
-import wget
 
 from vsat.arguments_loader import *
 

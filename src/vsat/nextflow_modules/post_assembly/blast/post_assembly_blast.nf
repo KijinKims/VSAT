@@ -30,7 +30,7 @@ workflow blast {
     }
 
     if (params.tool.contains("diamond")) {
-        Channel.fromPath("${params.diamond_db}/rvdb-prot.dmnd", type: 'dir').set{diamond_db}
+        Channel.fromPath("${params.diamond_db_dir}/${params.diamond_db_name}.dmnd").set{diamond_db}
         diamond(contigs, diamond_db)
         blast_outs.concat(diamond.out)
     }
