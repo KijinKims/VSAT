@@ -24,7 +24,7 @@ process match_taxonomy_process {
         path blast_out
         path taxonomizr_db
     output:
-        path "${blast_out.baseName}.html"
+        path "*"
     """
     Rscript ~/match_taxonomy.R $blast_out ${blast_out.baseName}.html ${taxonomizr_db}
     """

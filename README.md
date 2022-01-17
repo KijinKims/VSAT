@@ -63,6 +63,15 @@ vsat filter blast -x SRR13439799/post_assembly/blast/SRR13439799.diamond.txt --p
 #report blast
 vsat report blast -x SRR13439799/post_assembly/blast/SRR13439799.megablast.filtered.txt --prefix SRR13439799 --taxonomizr_db $VSAT_DB/taxonomizr/accessionTaxa.sql
 #zoonosis
-vsat post_assembly zoonosis -x SRR13439799/assembly/polished_contigs.fasta --prefix SRR13439799
+vsat post_assembly zoonosis -x SRR13439799/polish/SRR13439799.polished_contigs.fasta --prefix SRR13439799
+```
+
+
+
+```bash
+#post assembly all 
+vsat post_assembly all -x SRR13439799/polish/SRR13439799.polished_contigs.fasta --prefix SRR13439799 --blast_db_dir $VSAT_DB/blast/refseq-viral --blast_db_name refseq-viral --diamond_db_dir $VSAT_DB/diamond --diamond_db_name rvdb-prot --taxonomizr_db $VSAT_DB/taxonomizr/accessionTaxa.sql
+#end to end
+vsat end_to_end --platform nanopore -x SRR13439799_Sequecing_of_PR8_H1N1_culture_medium_1.fastq --prefix SRR13439799
 ```
 

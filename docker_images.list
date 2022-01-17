@@ -4,10 +4,11 @@ r-base:latest
 biocontainers/fastqc:v0.11.9_cv8
 ewels/multiqc:latest
 nanozoo/nanoplot:latest
-#preprocess
+#filter reads
 dceoy/prinseq:latest
 staphb/trimmomatic:latest
 mcfonsecalab/nanofilt:latest
+#filter host
 nanozoo/minimap2:2.22--b178b67
 staphb/bedtools:latest
 staphb/samtools:latest
@@ -26,6 +27,7 @@ nanozoo/krona:latest
 staphb/spades:latest
 vout/megahit:latest
 biocontainers/canu:v1.8dfsg-2-deb_cv1
+#filter contigs
 nanozoo/bbmap:38.86--9ebcbfa
 #polish
 nanozoo/minimap2:2.22--b178b67
@@ -34,6 +36,9 @@ nanozoo/medaka:latest
 #blast
 ncbi/blast:latest
 bschiffthaler/diamond:latest
+#filter blast
+skkujin/dplyr:latest
+#report blast
 skkujin/taxonomizr:latest
 #zoonosis
 nanozoo/prodigal:latest
