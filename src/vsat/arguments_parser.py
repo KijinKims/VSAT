@@ -185,7 +185,8 @@ class Parser:
         blast_parser.add_argument('--tool', '-t', nargs='*', choices=['blastn' ,'megablast', 'diamond'], default=['blastn' ,'megablast', 'diamond'])
         blast_parser.add_argument('--blast_db_dir', '-d', nargs='?', type=lambda x: parser_path_check(blast_parser, valid_dir, x))
         blast_parser.add_argument('--blast_db_name', '-n', nargs='?')
-        blast_parser.add_argument('--diamond_db', nargs='?', type=lambda x: parser_path_check(blast_parser, valid_dir, x))
+        blast_parser.add_argument('--diamond_db_dir', nargs='?', type=lambda x: parser_path_check(blast_parser, valid_dir, x))
+        blast_parser.add_argument('--diamond_db_name', nargs='?')
         blast_parser.add_argument('--taxonomizr_db', nargs='?', type=lambda x: parser_path_check(blast_parser, valid_file, x))
 
         zoonosis_parser = post_assembly_subparsers.add_parser('zoonosis', parents=[shared_parser, post_assembly_input_parser], argument_default=argparse.SUPPRESS)
