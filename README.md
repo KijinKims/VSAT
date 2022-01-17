@@ -56,12 +56,12 @@ vsat filter contigs -x SRR13439799/assembly/SRR13439799.contigs.fasta --prefix S
 #polish
 vsat polish -x SRR13439799/assembly/SRR13439799.filtered_contigs.fasta --prefix SRR13439799 --reads SRR13439799_Sequecing_of_PR8_H1N1_culture_medium_1.fastq
 #blast
-vsat post_assembly blast -x SRR13439799/polish/SRR13439799.polished_contigs.fasta --prefix SRR13439799 --blast_db_dir $VSAT_DB/blast/refseq-viral --blast_db_name refseq-viral --diamond_db_dir $VSAT_DB/diamond --diamond_db_name rvdb-prot --taxonomizr_db $VSAT_DB/taxonomizr/accessionTaxa.sql
+vsat post_assembly blast -x SRR13439799/polish/SRR13439799.polished_contigs.fasta --prefix SRR13439799 --blast_db_dir $VSAT_DB/blast/refseq-viral --blast_db_name refseq-viral --diamond_db_dir $VSAT_DB/diamond --diamond_db_name rvdb-prot
 #filter blast
 vsat filter blast -x SRR13439799/post_assembly/blast/SRR13439799.megablast.txt --prefix SRR13439799
 vsat filter blast -x SRR13439799/post_assembly/blast/SRR13439799.diamond.txt --prefix SRR13439799
 #report blast
-vsat report blast -x SRR13439799/post_assembly/blast/SRR13439799.megablast.filtered.txt --prefix SRR13439799
+vsat report blast -x SRR13439799/post_assembly/blast/SRR13439799.megablast.filtered.txt --prefix SRR13439799 --taxonomizr_db $VSAT_DB/taxonomizr/accessionTaxa.sql
 #zoonosis
 vsat post_assembly zoonosis -x SRR13439799/assembly/polished_contigs.fasta --prefix SRR13439799
 ```
