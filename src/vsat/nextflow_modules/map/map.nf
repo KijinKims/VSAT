@@ -31,7 +31,7 @@ workflow map_illumina {
         bamcov(map_pair.out.flatten())
         Channel.from("SEQ_NAME\tSTART\tEND\tN_READS\tN_COVERED_BASES\tPERCENT_COVERED\tAVG_COV\tAVG_BASEQ\tAVG_MAPQ").set{bamcov_header}
         bamcov.out.map{ it.text }.set{ bamcov_outputs }
-        map_out = bamcov_header.concat(bamcov_outputs).collectFile(name: "${params.prefix}.map.tsv", newLine: true, storeDir: "${params.outdir}/map")
+        bamcov_header.concat(bamcov_outputs).collectFile(name: "${params.prefix}.map.tsv", newLine: true, storeDir: "${params.outdir}/map").set{map_out}
 }
 
 workflow map_nanopore {
@@ -49,7 +49,7 @@ workflow map_nanopore {
         bamcov(map_single.out.flatten())
         Channel.from("SEQ_NAME\tSTART\tEND\tN_READS\tN_COVERED_BASES\tPERCENT_COVERED\tAVG_COV\tAVG_BASEQ\tAVG_MAPQ").set{bamcov_header}
         bamcov.out.map{ it.text }.set{ bamcov_outputs }
-        map_out = bamcov_header.concat(bamcov_outputs).collectFile(name: "${params.prefix}.map.tsv", newLine: true, storeDir: "${params.outdir}/map", sort: false)
+        bamcov_header.concat(bamcov_outputs).collectFile(name: "${params.prefix}.map.tsv", newLine: true, storeDir: "${params.outdir}/map", sort: false).set{map_out}
 }
 
 workflow map_refs_parse {

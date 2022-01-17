@@ -11,7 +11,7 @@ workflow match_taxonomy {
         blast_out
     main:
         Channel.fromPath(params.taxonomizr_db).set{taxonomizr_db}
-        matched = match_taxonomy_process(blast_out, taxonomizr_db)
+        matched = match_taxonomy_process(blast_out.combine(taxonomizr_db))
     
 }
 

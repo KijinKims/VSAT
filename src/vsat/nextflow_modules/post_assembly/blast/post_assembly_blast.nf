@@ -20,20 +20,21 @@ workflow blast {
     if (params.tool.contains("blastn")) {
         Channel.fromPath(params.blast_db_dir, type: 'dir').set{blast_db_dir}
         blastn(contigs, blast_db_dir)
-        blast_outs.concat(blastn.out)
+        blast_outs = blast_outs.concat(blastn.out)
     }
     
     if (params.tool.contains("megablast")) {
         Channel.fromPath(params.blast_db_dir, type: 'dir').set{blast_db_dir}
         megablast(contigs, blast_db_dir)
-        blast_outs.concat(megablast.out)
+        blast_outs = blast_outs.concat(megablast.out)
     }
 
     if (params.tool.contains("diamond")) {
         Channel.fromPath("${params.diamond_db_dir}/${params.diamond_db_name}.dmnd").set{diamond_db}
         diamond(contigs, diamond_db)
-        blast_outs.concat(diamond.out)
+        blast_outs = blast_outs.concat(diamond.out)
     }
+    
 }
 
 process blastn {
@@ -45,8 +46,7 @@ process blastn {
         path contigs
         path blast_db_dir
     output:
-        path "${params.prefix}.blastn.txt"
-        val "blastn"
+        tuple path("${params.prefix}.blastn.txt"), val("blastn")
     """
     { echo 'QUERY_ID\tREF_ID\tTAX_ID\tREF_TITLE\tPER_IDENT\tQUERY_LEN\tALN_LEN\tMISMATCH\tGAPOPEN\tQUERY_START\tQUERY_END\tREF_START\tREF_END\tEVALUE\tBITSCORE'; \
     blastn -query $contigs -db "${blast_db_dir}/${params.blast_db_name}" -task blastn -evalue ${params.min_evalue} -max_target_seqs 1 -outfmt "6 qseqid sseqid staxids stitle pident qlen length mismatch gapopen qstart qend sstart send evalue bitscore" -num_threads ${params.threads}; \
@@ -63,8 +63,7 @@ process megablast {
         path contigs
         path blast_db_dir
     output:
-        path "${params.prefix}.megablast.txt"
-        val "megablast"
+        tuple path("${params.prefix}.megblast.txt"), val("megablast")
     """
     { echo 'QUERY_ID\tREF_ID\tTAX_ID\tREF_TITLE\tPER_IDENT\tQUERY_LEN\tALN_LEN\tMISMATCH\tGAPOPEN\tQUERY_START\tQUERY_END\tREF_START\tREF_END\tEVALUE\tBITSCORE'; \
     blastn -query $contigs -db "${blast_db_dir}/${params.blast_db_name}" -task megablast -evalue ${params.min_evalue} -max_target_seqs 1 -outfmt "6 qseqid sseqid staxids stitle pident qlen length mismatch gapopen qstart qend sstart send evalue bitscore" -num_threads ${params.threads}; \
@@ -81,8 +80,7 @@ process diamond {
         path contigs
         path diamond_db
     output:
-        path "${params.prefix}.diamond.txt"
-        val "diamond"
+        tuple path("${params.prefix}.diamond.txt"), val("diamond")
     """
     { echo 'QUERY_ID\tREF_ID\tTAX_ID\tREF_TITLE\tPER_IDENT\tQUERY_LEN\tALN_LEN\tMISMATCH\tGAPOPEN\tQUERY_START\tQUERY_END\tREF_START\tREF_END\tEVALUE\tBITSCORE'; \
     diamond blastx -d ${diamond_db} -q $contigs --max-target-seqs 1 --evalue ${params.min_evalue} --outfmt 6 qseqid sseqid staxids stitle pident qlen length mismatch gapopen qstart qend sstart send evalue bitscore; \

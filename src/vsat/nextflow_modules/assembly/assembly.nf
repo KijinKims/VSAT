@@ -36,7 +36,7 @@ workflow assembly_nanopore {
         contigs
     main:
         
-        if (params.tool && params.tool == "canu") {
+        if (params.tool == "canu") {
             contigs = canu(fastx)
         } else {
             contigs = megahit(fastx)

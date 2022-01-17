@@ -26,7 +26,10 @@ process filter_map_process {
     """
     #!/usr/bin/env Rscript
     
-    tb <- read.table("${map_out}", sep="\t", header=TRUE) 
+    tb <- read.table("${map_out}", sep="\t", header=TRUE)
+    if (nrow(tb)==0){
+        quit("No mapped result.")
+    }
     #"SEQ_NAME\tSTART\tEND\tN_READS\tN_COVERED_BASES\tPERCENT_COVERED\tAVG_COV\tAVG_BASEQ\tAVG_MAPQ"
     names(tb)[names(tb) == "END"] <- "LEN"
     tb <- subset(tb, select=-START)

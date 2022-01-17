@@ -116,7 +116,7 @@ process extract_not_mapped_reads_single {
         path bam
         val ext
     output:
-        path("${params.prefix}.host_filtered.$ext.$ext")
+        path "${params.prefix}.host_filtered.$ext"
     script:
     if (ext == "fastq" || ext =="fq")
     """
