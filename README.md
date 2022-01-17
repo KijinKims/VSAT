@@ -46,7 +46,7 @@ vsat filter reads --platform nanopore -x SRR13439799_Sequecing_of_PR8_H1N1_cultu
 #map
 vsat map --platform nanopore -x SRR13439799/filter/SRR13439799.filtered.fastq --prefix SRR13439799 --ref KJ942813_influenza_A.fasta
 #filter map
-vsat filter map -x SRR13439799/map/SRR13439799.map.tsv
+vsat filter map -x SRR13439799/map/SRR13439799.map.tsv --prefix SRR13439799
 #kmer
 vsat kmer --platform nanopore -x SRR13439799/filter/SRR13439799.filtered.fastq --prefix SRR13439799 
 #assembly

@@ -12,8 +12,8 @@ workflow filter_contigs {
     emit:
         filtered_contigs
     main:
-        filter_contigs(contigs)
-        filtered_contigs = rename_contigs(filter_contigs.out)
+        length_filter_contigs(contigs)
+        filtered_contigs = rename_contigs(length_filter_contigs.out)
 }
 
 process length_filter_contigs {
