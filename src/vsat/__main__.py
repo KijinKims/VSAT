@@ -13,7 +13,7 @@ if __name__ == '__main__':
         
         for cmd in cmd_generator.get_cmds():
             print(cmd)
-            #subprocess.run(cmd, shell=True, check=True)
+            subprocess.run(cmd, shell=True, check=True)
     else:
         if args.subtask == 'build':
             cmd_generator = BuildDBCmdGenerator(args)
