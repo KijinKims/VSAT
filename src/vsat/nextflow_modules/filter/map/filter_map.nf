@@ -28,7 +28,7 @@ process filter_map_process {
     
     tb <- read.table("${map_out}", sep="\t", header=TRUE)
     if (nrow(tb)==0){
-        quit("No mapped result.")
+        quit("no")
     }
     #"SEQ_NAME\tSTART\tEND\tN_READS\tN_COVERED_BASES\tPERCENT_COVERED\tAVG_COV\tAVG_BASEQ\tAVG_MAPQ"
     names(tb)[names(tb) == "END"] <- "LEN"

@@ -9,7 +9,7 @@ include { assembly_illumina; assembly_nanopore } from '../assembly/assembly' add
 include { polish } from '../polish/polish' addParams(tool: 'racon medaka')
 include { filter_contigs } from '../filter/contigs/filter_contigs'
 include { blast } from '../post_assembly/blast/post_assembly_blast' addParams(tool: 'blastn megablast diamond')
-include { filter_blast_nucl, filter_blast_prot } from '../filter/blast/filter_blast'
+include { filter_blast_nucl; filter_blast_prot } from '../filter/blast/filter_blast'
 include { match_taxonomy } from '../report/blast/report_blast'
 include { zoonotic_rank } from '../post_assembly/zoonosis/post_assembly_zoonosis' addParams(tool: 'zoonotic_rank')
 
@@ -64,7 +64,9 @@ workflow {
     
     filter_contigs(contigs)
 
-    blast_nucl, blast_prot = blast(filter_contigs.out)
+    blast_outs = blast(filter_contigs.out)
+    blast_nucl = blast_outs[0]
+    blast_prot = blast_outs[1]
     filter_blast_nucl(blast_nucl)
     filter_blast_prot(blast_prot)
     filter_blast_nucl.out.concat(filter_blast_prot.out).set{filter_blast_out}

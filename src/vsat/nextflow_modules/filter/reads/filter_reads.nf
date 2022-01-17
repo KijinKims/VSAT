@@ -25,8 +25,8 @@ workflow filter_reads_illumina {
 
     main:
 
-        decompress(fastq_pair)
-        filter_illumina(decompress.out)
+        decompress_pair(fastq_pair)
+        filter_illumina(decompress_pair.out)
         filtered = trim_illumina(filter_illumina.out)
 }
 
@@ -36,7 +36,8 @@ workflow filter_reads_nanopore {
     emit:
         filtered
     main:
-        filtered = filter_nanopore(fastx)
+        decompress_single(fastx)
+        filtered = filter_nanopore(decompress_single.out)
 }
 
 workflow filter_reads_hybrid {
@@ -53,8 +54,8 @@ workflow filter_reads_hybrid {
         filtered = res1.combine(res2)
 }
 
-process decompress {
-    tag "${params.prefix}:decompress"
+process decompress_pair {
+    tag "${params.prefix}:decompress_pair"
     stageInMode "copy"
 
     input:
@@ -67,6 +68,25 @@ process decompress {
         """
             gunzip $pe1
             gunzip $pe2
+        """
+    else
+        """
+        """
+
+}
+process decompress_single {
+    tag "${params.prefix}:decompress_single"
+    stageInMode "copy"
+
+    input:
+        path fastx
+    output:
+        path "*"
+    script:
+
+    if (fastx.Extension == "gz" || fastx.Extension == "gunzip")
+        """
+            gunzip $fastx
         """
     else
         """
@@ -107,14 +127,8 @@ process filter_nanopore {
     input:
         path single
     output:
-        path("${params.prefix}.filtered.$ext")
-    script:
-    ext = ""
-    if (single.Extension == "gz" || single.Extension == "gunzip")
-        ext = single.BaseName.Extension + "gz"
-    else
-        ext = single.Extension
+        path("${params.prefix}.filtered.${single.extension}")
     """
-    NanoFilt --length ${params.nanopore_min_read_length} --readtype 1D --quality ${params.nanopore_min_read_quality} $single > ${params.prefix}.filtered.$ext
+    NanoFilt --length ${params.nanopore_min_read_length} --readtype 1D --quality ${params.nanopore_min_read_quality} $single > ${params.prefix}.filtered.${single.extension}
     """
 }

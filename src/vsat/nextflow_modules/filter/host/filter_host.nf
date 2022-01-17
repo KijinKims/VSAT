@@ -83,11 +83,7 @@ process host_map_single {
         val "$ext"
     
     script:
-    ext = ""
-    if (single.Extension == "gz" || single.Extension == "gunzip")
-        ext = single.BaseName.Extension
-    else
-        ext = single.Extension
+    ext = single.Extension
     """
     minimap2 -ax map-ont $host_genome $single | samtools view -Sb - | samtools view -b -f 12 -F 256 | samtools sort -o aln.sorted.bam
     """
@@ -116,7 +112,7 @@ process extract_not_mapped_reads_single {
         path bam
         val ext
     output:
-        path "${params.prefix}.host_filtered.$ext"
+        path("${params.prefix}.host_filtered.$ext")
     script:
     if (ext == "fastq" || ext =="fq")
     """

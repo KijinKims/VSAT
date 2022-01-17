@@ -22,19 +22,19 @@ workflow blast {
     if (params.tool.contains("blastn")) {
         Channel.fromPath(params.blast_db_dir, type: 'dir').set{blast_db_dir}
         blastn(contigs, blast_db_dir)
-        blast_nucl_outs = blast_outs.concat(blastn.out)
+        blast_nucl_outs = blast_nucl_outs.concat(blastn.out)
     }
     
     if (params.tool.contains("megablast")) {
         Channel.fromPath(params.blast_db_dir, type: 'dir').set{blast_db_dir}
         megablast(contigs, blast_db_dir)
-        blast_nucl_outs = blast_outs.concat(megablast.out)
+        blast_nucl_outs = blast_nucl_outs.concat(megablast.out)
     }
 
     if (params.tool.contains("diamond")) {
         Channel.fromPath("${params.diamond_db_dir}/${params.diamond_db_name}.dmnd").set{diamond_db}
         diamond(contigs, diamond_db)
-        blast_prot_outs = blast_outs.concat(diamond.out)
+        blast_prot_outs = blast_prot_outs.concat(diamond.out)
     }
     
 }

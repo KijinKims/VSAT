@@ -21,8 +21,7 @@ process match_taxonomy_process {
     publishDir "${params.outdir}/post_assembly/blast", mode: 'copy'
 
     input:
-        path blast_out
-        path taxonomizr_db
+        tuple path(blast_out), path(taxonomizr_db)
     output:
         path "*"
     """

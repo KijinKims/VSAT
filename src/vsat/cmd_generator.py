@@ -83,7 +83,7 @@ class AnalysisCmdGenerator(CmdGenerator):
 
             for col_name in header:
                 if col_name not in sample_specific_args:
-                    raise InputError(f"File inputs should contain only sample-specific arguments({'/'.join(sample_specific_args)})! The argument {col_name} is not sample-speicific.")
+                    raise InputError(f"File inputs should contain only sample-specific arguments({'/'.join(sample_specific_args)})! The argument '{col_name}' is not sample-speicific or invalid.")
 
             try:
                 for row in reader:

@@ -7,15 +7,18 @@ class Arg:
         self.name = name
 
 class ListArg(Arg):
-    def __init__(self, name, values : List[Any]):
+    def __init__(self, name, values):
         super().__init__(name)
-        self.li = values
+        if type(values) == list:
+            self.li = values
+        else:
+            self.li = [values]
 
     def __len__(self):
         return len(self.li)
 
     def __add__(self, other_list_arg):
-        self.li += other_list_arg.li
+        self.li = self.li + other_list_arg.li
         return self
 
     def __getitem__(self, idx : int):
