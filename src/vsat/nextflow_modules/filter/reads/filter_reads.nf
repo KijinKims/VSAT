@@ -81,12 +81,12 @@ process decompress_single {
     input:
         path fastx
     output:
-        path "*"
+        path "*", includeInputs: true
     script:
 
     if (fastx.Extension == "gz" || fastx.Extension == "gunzip")
         """
-            gunzip $fastx
+            gunzip -c $fastx > ${fastx.simpleName}
         """
     else
         """
