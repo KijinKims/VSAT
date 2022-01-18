@@ -58,9 +58,9 @@ workflow {
         filter_map(map_nanopore.out)
 
         kmer_nanopore(filter_completed)
-        }
 
         contigs = assembly_nanopore(filter_completed)
+        }
     
     filter_contigs(contigs)
 
