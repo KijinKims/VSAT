@@ -44,3 +44,5 @@ skkujin/taxonomizr:latest
 nanozoo/prodigal:latest
 skkujin/prodigal_sco_to_zoonotic_rank_metadata:latest
 skkujin/zoonotic_rank:latest
+#consensus
+skkujin/consensus_nanopore:latest
