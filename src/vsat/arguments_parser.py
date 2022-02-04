@@ -208,6 +208,12 @@ class Parser:
         report_blast_parser.add_argument('--taxonomizr_db', nargs='?', type=lambda x: parser_path_check(report_blast_parser, valid_file, x))
 
         end_to_end_parser = subparsers.add_parser('end_to_end', parents=[shared_parser, platform_parser, input_parser], argument_default=argparse.SUPPRESS)
+        end_to_end_parser.add_argument('--host_genome', nargs='*', type=lambda x: parser_path_check(end_to_end_parser, valid_fasta, x))
+
+        consensus_parser = subparsers.add_parser('consensus', parents=[shared_parser, platform_parser, input_parser], argument_default=argparse.SUPPRESS)
+        consensus_parser.add_argument('--ref', nargs='*', type=lambda x: parser_path_check(consensus_parser, valid_fasta, x))
+        consensus_parser.add_argument('--cds', nargs='*', type=lambda x: parser_path_check(consensus_parser, valid_file, x))
+        consensus_parser.add_argument('--ref_cds', nargs='?', type=lambda x: parser_path_check(consensus_parser, valid_file, x))
 
         database_parser = subparsers.add_parser('database')
         database_subparsers = database_parser.add_subparsers(dest='subtask', title='subtasks', description='valid subtasks', required=True)

@@ -34,7 +34,6 @@ workflow {
             filter_completed = filter_reads_illumina.out
         }
 
-        
         map_illumina(filter_completed)
         filter_map(map_illumina.out)
 
@@ -72,5 +71,5 @@ workflow {
     filter_blast_nucl.out.concat(filter_blast_prot.out).set{filter_blast_out}
     match_taxonomy(filter_blast_out)
 
-    zoonotic_rank(contigs)
+    zoonotic_rank(filter_contigs.out)
 }

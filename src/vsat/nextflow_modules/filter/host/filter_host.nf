@@ -85,7 +85,7 @@ process host_map_single {
     script:
     ext = single.Extension
     """
-    minimap2 -ax map-ont $host_genome $single | samtools view -Sb - | samtools view -b -f 12 -F 256 | samtools sort -o aln.sorted.bam
+    minimap2 -ax map-ont $host_genome $single | samtools view -Sb - | samtools sort -o aln.sorted.bam
     """
 }
 

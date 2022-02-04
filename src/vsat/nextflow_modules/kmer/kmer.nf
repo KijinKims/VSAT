@@ -89,7 +89,7 @@ process kraken2_pair {
     script:
 
     """
-    kraken2 --db ${params.kraken2_db} \
+    kraken2 --db $kraken2_db \
         --report ${params.prefix}.kraken_report.csv \
         --paired --threads ${params.threads} --confidence ${params.kraken2_confidence_threshold}\
         $pe1 $pe2
@@ -106,7 +106,7 @@ process kraken2_single {
         path "${params.prefix}.kraken_report.csv"
 
     """
-    kraken2 --db ${params.kraken2_db} \
+    kraken2 --db $kraken2_db \
         --report ${params.prefix}.kraken_report.csv \
         --threads ${params.threads} --confidence ${params.kraken2_confidence_threshold}\
         $single

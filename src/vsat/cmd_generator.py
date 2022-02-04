@@ -76,14 +76,10 @@ class AnalysisCmdGenerator(CmdGenerator):
 
         return argsloader, file_input
 
-    def validify_file_input(self, file_input):
+    def validify_file(self, file_input):
         with open(file_input, newline='') as csvfile:
             reader = file_handle_as_csv_dictreader_object(csvfile)
             header = reader.fieldnames
-
-            for col_name in header:
-                if col_name not in sample_specific_args:
-                    raise InputError(f"File inputs should contain only sample-specific arguments({'/'.join(sample_specific_args)})! The argument '{col_name}' is not sample-speicific or invalid.")
 
             try:
                 for row in reader:
@@ -97,10 +93,32 @@ class AnalysisCmdGenerator(CmdGenerator):
                     for key in row.keys():
                         if key in file_args:
                             if not os.path.exists(row[key]) or not os.path.getsize(row[key]) > 0:
-                                raise InputError(f"Input file {row[key]} does not exists or is empty.")
+                                raise InputError(f"File {row[key]} does not exists or is empty.")
 
             except csv.Error as e:
                 sys.exit(f'file {file_input}, line {reader.line_num}: {e}')
+
+    def validify_file_input(self, file_input):
+        with open(file_input, newline='') as csvfile:
+            reader = file_handle_as_csv_dictreader_object(csvfile)
+            header = reader.fieldnames
+
+            for col_name in header:
+                if col_name not in sample_specific_args:
+                    raise InputError(f"File inputs should contain only sample-specific arguments({'/'.join(sample_specific_args)})! The argument '{col_name}' is not sample-speicific or invalid.")
+
+        self.validify_file(file_input)
+
+    def validify_file_ref_cds(self, file_ref_cds):
+        with open(file_ref_cds, newline='') as csvfile:
+            reader = file_handle_as_csv_dictreader_object(csvfile)
+            header = reader.fieldnames
+
+            for col_name in header:
+                if col_name not in ['ref', 'cds']:
+                    raise InputError(f"File ref_cds should contain only 'ref' and 'cds' columns! The argument '{col_name}' is neither of them.")
+
+        self.validify_file(file_ref_cds)
 
     def convert_file_input_to_argsloader(self, file_input):
         argsloader = ArgsLoader()
@@ -157,6 +175,15 @@ class AnalysisCmdGenerator(CmdGenerator):
                     if argsloader.has('y'):
                         warnings.warn("Chosen analysis doesn't need -y. Given argument will be ignored.")
 
+        if argsloader['task'] == 'consensus':
+            if argsloader.has('ref_cds'):
+                self.validify_file_ref_cds(argsloader['ref_cds'])
+                self += self.convert_file_input_to_argsloader(argsloader['ref_cds'])
+            ref_num = len(argsloader['ref'])
+            cds_num = len(argsloader['cds'])
+            if ref_num != cds_num:
+                raise InputError("--ref and --cds have different lengths!")
+
         if argsloader.has('outdir'):
             if len(argsloader['outdir']) != prefix_num:
                 raise InputError("--outdir is in an inappropriate length. It can either be in the same length with --prefix or not given.")
@@ -184,7 +211,6 @@ class AnalysisCmdGenerator(CmdGenerator):
         nextflow_modules_dir = self.argsloader['nextflow_modules_dir']
         task = self.argsloader['task']
         subtask = self.argsloader['subtask']
-        analysis = self.argsloader['analysis']
 
         nxf_cmd = f"{nextflow_binary} run"
         nxf_cmd += " "
