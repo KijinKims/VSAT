@@ -55,7 +55,7 @@ class AnalysisCmdGenerator(CmdGenerator):
                 file_input = getattr(args, attr)
             else: # other args shared to all samples
                 if type(getattr(args, attr)) == list:
-                    if attr =='ref':
+                    if attr =='ref' or attr =='cds':
                         argsloader.add(FileListArg(attr, getattr(args, attr)))
                     elif attr == 'tool':
                         argsloader.add(ValueArg(attr, ' '.join(getattr(args, attr))))
@@ -75,6 +75,9 @@ class AnalysisCmdGenerator(CmdGenerator):
 
             if argsloader.has('ref'):
                 argsloader.get('ref').resolve_relative_path()
+
+            if argsloader.has('cds'):
+                argsloader.get('cds').resolve_relative_path()
 
         return argsloader, file_input
 
