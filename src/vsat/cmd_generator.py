@@ -134,6 +134,16 @@ class AnalysisCmdGenerator(CmdGenerator):
                     argsloader.add(ListArg(key, value))
         
         return argsloader
+
+    def convert_ref_cds_to_argsloader(self, file_ref_cds):
+        argsloader = ArgsLoader()
+        with open(file_ref_cds, newline='') as csvfile:
+            reader = file_handle_as_csv_dictreader_object(csvfile)
+            for row in reader:
+                for key, value in row.items():
+                    argsloader.add(FileListArg(key, value))
+        
+        return argsloader
     
     def validify_argsloader(self, argsloader : ArgsLoader):
 
@@ -183,7 +193,7 @@ class AnalysisCmdGenerator(CmdGenerator):
         if argsloader['task'] == 'consensus':
             if argsloader.has('ref_cds'):
                 self.validify_file_ref_cds(argsloader['ref_cds'])
-                argsloader += self.convert_file_input_to_argsloader(argsloader['ref_cds'])
+                argsloader += self.convert_ref_cds_to_argsloader(argsloader['ref_cds'])
             ref_num = len(argsloader['ref'])
             cds_num = len(argsloader['cds'])
             if ref_num != cds_num:
