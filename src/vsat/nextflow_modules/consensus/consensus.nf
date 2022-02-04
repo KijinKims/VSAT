@@ -55,7 +55,7 @@ workflow consensus_refs_parse {
     
         refs.ifEmpty{ println "WARN: No reference genome is given. No consensus will not be generated."}
 
-        ref_cds = make_tuple_ref_cds(ref, cds)
+        ref_cds = make_tuple_ref_cds(refs, cds_beds)
 }
 
 process make_tuple_ref_cds {
@@ -82,7 +82,7 @@ process consensus_illumina_process {
 }
 
 process consensus_nanopore_process {
-    publishDir "consensus", mode: 'copy'
+    publishDir "${params.outdir}/consensus", mode: 'copy'
     tag "${params.prefix}:consensus_nanopore_process"
 
     input:
@@ -91,7 +91,7 @@ process consensus_nanopore_process {
         path "${params.prefix}_${ref.simpleName}.consensus.fasta"
     """
     # variant call
-    mini_align -t ${params.threads} -p ${params.prefix}_${ref.simpleName} -i $fastq -r $ref -m -f -M 2 -S 4 -O 4,24 -E 2,1
+    mini_align -t ${params.threads} -p ${params.prefix}_${ref.simpleName} -i $single -r $ref -m -f -M 2 -S 4 -O 4,24 -E 2,1
     medaka consensus --model r941_prom_variant_g360 --threads ${params.threads} --batch_size 100 ${params.prefix}_${ref.simpleName}.bam ${params.prefix}_${ref.simpleName}.hdf
     medaka variant $ref ${params.prefix}_${ref.simpleName}.hdf ${params.prefix}_${ref.simpleName}.medaka.vcf
     medaka tools annotate --dpsp ${params.prefix}_${ref.simpleName}.medaka.vcf $ref ${params.prefix}_${ref.simpleName}.bam ${params.prefix}_${ref.simpleName}.medaka.annotated.vcf
@@ -116,7 +116,7 @@ process consensus_nanopore_process {
     bedtools maskfasta -fi ${ref.simpleName}.consensus.fasta -bed low_cov_${params.low_cov_threshold}.bed -fo ${params.prefix}_${ref.simpleName}.consensus.fasta
 
     # change fasta header
-    header=">${params.prefix}"
+    header=">${params.prefix}_${ref.simpleName}_consensus low_cov_thrs=${params.low_cov_threshold} var_qual_thrs=${params.variant_quality_threshold} var_depth_thrs=${params.variant_depth_threshold}"
     sed -i "1s/.*/\$header/" ${params.prefix}_${ref.simpleName}.consensus.fasta
     """
 }

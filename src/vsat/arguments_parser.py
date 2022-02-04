@@ -214,6 +214,9 @@ class Parser:
         consensus_parser.add_argument('--ref', nargs='*', type=lambda x: parser_path_check(consensus_parser, valid_fasta, x))
         consensus_parser.add_argument('--cds', nargs='*', type=lambda x: parser_path_check(consensus_parser, valid_file, x))
         consensus_parser.add_argument('--ref_cds', nargs='?', type=lambda x: parser_path_check(consensus_parser, valid_file, x))
+        consensus_parser.add_argument('--low_cov_threshold', nargs='?', type=int)
+        consensus_parser.add_argument('--variant_quality_threshold', nargs='?', type=int)
+        consensus_parser.add_argument('--variant_depth_threshold', nargs='?', type=int)
 
         database_parser = subparsers.add_parser('database')
         database_subparsers = database_parser.add_subparsers(dest='subtask', title='subtasks', description='valid subtasks', required=True)
