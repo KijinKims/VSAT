@@ -63,6 +63,8 @@ class AnalysisCmdGenerator(CmdGenerator):
                         argsloader.add(ListArg(attr, getattr(args, attr)))
                 elif type(getattr(args, attr)) == str:
                     argsloader.add(ValueArg(attr, getattr(args, attr)))
+                elif type(getattr(args, attr)) == int:
+                    argsloader.add(ValueArg(attr, getattr(args, attr)))
                 elif type(getattr(args, attr)) == bool:
                     argsloader.add(BooleanArg(attr, getattr(args, attr)))
                 elif type(getattr(args, attr)) == dict:
