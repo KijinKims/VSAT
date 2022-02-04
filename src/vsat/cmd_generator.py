@@ -183,7 +183,7 @@ class AnalysisCmdGenerator(CmdGenerator):
         if argsloader['task'] == 'consensus':
             if argsloader.has('ref_cds'):
                 self.validify_file_ref_cds(argsloader['ref_cds'])
-                self += self.convert_file_input_to_argsloader(argsloader['ref_cds'])
+                argsloader += self.convert_file_input_to_argsloader(argsloader['ref_cds'])
             ref_num = len(argsloader['ref'])
             cds_num = len(argsloader['cds'])
             if ref_num != cds_num:
