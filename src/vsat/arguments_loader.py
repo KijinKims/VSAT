@@ -101,7 +101,7 @@ class ArgsLoader:
 
     def add(self, arg : Arg):
         if arg.name in self.container:
-            if type(arg) == ListArg:
+            if issubclass(type(arg),ListArg) :
                 self.container[arg.name] += arg
             else:
                 warnings.warn("Non-list type argument cannot be added. Nothing changes.")
