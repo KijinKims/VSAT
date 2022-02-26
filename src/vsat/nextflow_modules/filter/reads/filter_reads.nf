@@ -9,10 +9,6 @@ workflow {
         } else if (params.platform == 'nanopore') {
             Channel.fromPath(params.x).set{fastx}
             filter_reads_nanopore(fastx)
-        } else { //hybrid
-            Channel.fromPath([params.x, params.x2]).buffer(size:2).set{fastq_pair}
-            Channel.fromPath(params.y).set{fastx}
-            filter_reads_hybrid(fastq_pair, fastx)
         }
 }
 
@@ -24,7 +20,6 @@ workflow filter_reads_illumina {
         filtered
 
     main:
-
         decompress_pair(fastq_pair)
         filter_illumina(decompress_pair.out)
         filtered = trim_illumina(filter_illumina.out)
@@ -38,20 +33,6 @@ workflow filter_reads_nanopore {
     main:
         decompress_single(fastx)
         filtered = filter_nanopore(decompress_single.out)
-}
-
-workflow filter_reads_hybrid {
-    take:
-        fastq_pair
-        fastx
-
-    emit:
-        filtered
-
-    main:
-        res1 = filter_illumina(fastq_pair)
-        res2 = filter_nanopore(fastx)
-        filtered = res1.combine(res2)
 }
 
 process decompress_pair {
@@ -108,8 +89,9 @@ process filter_illumina {
 process trim_illumina {
     tag "${params.prefix}:trim_illumina"
 
-    publishDir path: { params.saveFiltered ? "$params.outdir/filter_reads" : null }, mode: 'copy' 
-
+    if(params.saveFiltered){
+        publishDir path: "$params.outdir/filter", mode: 'copy'
+    }
     input:
         tuple path(pe1), path(pe2)
     output:
@@ -122,7 +104,9 @@ process trim_illumina {
 process filter_nanopore {
     tag "${params.prefix}:filter_nanopore"
 
-    publishDir path: { params.saveFiltered ? "$params.outdir/filter" : null }, mode: 'copy'
+    if(params.saveFiltered){
+        publishDir path: "$params.outdir/filter", mode: 'copy'
+    }
 
     input:
         path single

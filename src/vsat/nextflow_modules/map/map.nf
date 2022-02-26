@@ -9,10 +9,6 @@ workflow {
         } else if (params.platform == 'nanopore') {
             Channel.fromPath(params.x).set{fastx}
             map_nanopore(fastx)
-        } else { //hybrid
-            Channel.fromPath([params.x, params.x2]).buffer(size:2).set{fastq_pair}
-            Channel.fromPath(params.y).set{fastx}
-            map_hybrid(fastq_pair, fastx)
         }
 }
 
@@ -31,7 +27,7 @@ workflow map_illumina {
         bamcov(map_pair.out.flatten())
         Channel.from("SEQ_NAME\tSTART\tEND\tN_READS\tN_COVERED_BASES\tPERCENT_COVERED\tAVG_COV\tAVG_BASEQ\tAVG_MAPQ").set{bamcov_header}
         bamcov.out.map{ it.text }.set{ bamcov_outputs }
-        bamcov_header.concat(bamcov_outputs).collectFile(name: "${params.prefix}.map.tsv", newLine: true, storeDir: "${params.outdir}/map").set{map_out}
+        bamcov_header.concat(bamcov_outputs).collectFile(name: "${params.prefix}.map.tsv", newLine: true, storeDir: "${params.outdir}/map", sort: false).set{map_out}
 }
 
 workflow map_nanopore {
@@ -57,13 +53,13 @@ workflow map_refs_parse {
         refs
     
     main:
-        if (params.ref  != null) {
+        if (params.ref) {
             Channel.fromPath(params.ref.tokenize()).set{refs}
         } else {
             Channel.empty().set{refs}
         }
 
-        if (params.file_ref != null) {
+        if (params.file_ref) {
             Channel.fromPath(params.file_ref)
                     .splitText()
                     .map { it -> it.trim() }
@@ -71,12 +67,22 @@ workflow map_refs_parse {
                     .set { file_ref_ch }
             refs.concat(file_ref_ch).set{refs}
         }
+
+        if (params.dir_ref) {
+            Channel.fromPath(["${params.dir_ref}/*.fa", "${params.dir_ref}/*.fasta"])
+                    .set { dir_ref_ch }
+            refs.concat(dir_ref_ch).set{refs}
+        }
     
     refs.ifEmpty{ println "WARN: No reference genome is given. Reference mapping will not happen."}
 }
 
 process map_pair {
     tag "${params.prefix}:map_pair"
+
+    if(params.saveBam){
+        publishDir path: "$params.outdir/map", mode: 'copy'
+    }
 
     input:
         tuple path(ref), path(pe1), path(pe2)
@@ -89,6 +95,10 @@ process map_pair {
 
 process map_single {
     tag "${params.prefix}:map_single"
+
+    if(params.saveBam){
+        publishDir path: "$params.outdir/map", mode: 'copy'
+    }
 
     input:
         tuple path(ref), path(single)

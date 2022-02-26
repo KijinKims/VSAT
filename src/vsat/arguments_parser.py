@@ -45,34 +45,28 @@ def valid_fastx(filename):
     if not is_existing_nonempty_file(filename):
         return False, "The file %s does not exists or is empty!" % filename
     else:
-        '''
-        if not is_fasta(filename) and is_fastq(filename):
-            return False, "The file %s is invalid fastq!" % filename
+        if not is_fasta(filename) and not is_fastq(filename):
+            return False, "The file %s is invalid fastx!" % filename
         else:
-        '''
-        return True, ''
+            return True, ''
 
 def valid_fastq(filename):
     if not is_existing_nonempty_file(filename):
         return False, "The file %s does not exists or is empty!" % filename
     else:
-        '''
         if not is_fastq(filename):
             return False, "The file %s is invalid fastq!" % filename
         else:
-        '''
-        return True, ''
+            return True, ''
 
 def valid_fasta(filename):
     if not is_existing_nonempty_file(filename):
         return False, "The file %s does not exists or is empty!" % filename
     else:
-        '''
         if not is_fasta(filename):
             return False, "The file %s is invalid fasta!" % filename
         else:
-        '''
-        return True, ''
+            return True, ''
 
 def valid_fasta_list(filename):
     if not is_existing_nonempty_file(filename):
@@ -106,14 +100,14 @@ class Parser:
 
         nxf_script_dir = str(PurePath(os.path.dirname(os.path.realpath(__file__)), "nextflow_modules"))
 
-        if os.environ.get('VSAT_DB'):
-            pkgs_dir = os.environ.get('VSAT_DB')
+        if os.environ.get('BF_DB'):
+            pkgs_dir = os.environ.get('BF_DB')
         else:
-            pkgs_dir = str(PurePath(Path.home(),"VSAT_DB"))
-            os.environ['VSAT_DB'] = pkgs_dir
+            pkgs_dir = str(PurePath(Path.home(),"BF_DB"))
+            os.environ['BF_DB'] = pkgs_dir
         
 
-        parser = argparse.ArgumentParser(prog='VSAT', description='%(prog)s is a command line program integrating tools for virus sequence analysis.')
+        parser = argparse.ArgumentParser(prog='BunyaFinder', description='%(prog)s is a command line program for detection and analysis of Bunyavirus sequence.')
         subparsers = parser.add_subparsers(dest='task', required=True, title='tasks', description='valid tasks')
 
         shared_parser = argparse.ArgumentParser(add_help=False, argument_default=argparse.SUPPRESS)
@@ -130,12 +124,14 @@ class Parser:
         platform_parser.add_argument('--platform', nargs='?', choices=['illumina', 'nanopore'], required=True)
 
         input_parser = argparse.ArgumentParser(add_help=False, argument_default=argparse.SUPPRESS)
-        input_parser.add_argument('-x', nargs='*', type=lambda x: parser_path_check(input_parser, valid_fastx, x))
+        input_parser.add_argument('-x', nargs='*', type=lambda x: parser_path_check(input_parser, valid_file, x))
         input_parser.add_argument('-x2', nargs='*', type=lambda x: parser_path_check(input_parser, valid_fastq, x))
-        input_parser.add_argument('-y', nargs='*', type=lambda x: parser_path_check(input_parser, valid_fasta, x))
 
         post_assembly_input_parser = argparse.ArgumentParser(add_help=False, argument_default=argparse.SUPPRESS)
         post_assembly_input_parser.add_argument('-x', nargs='*', type=lambda x: parser_path_check(post_assembly_input_parser, valid_fasta, x))
+
+        general_input_parser = argparse.ArgumentParser(add_help=False, argument_default=argparse.SUPPRESS)
+        general_input_parser.add_argument('-x', nargs='*', type=lambda x: parser_path_check(general_input_parser, valid_file, x))
         
         qc_parser = subparsers.add_parser('qc', parents=[shared_parser, platform_parser, input_parser], argument_default=argparse.SUPPRESS)
 
@@ -150,29 +146,26 @@ class Parser:
         filter_host_parser = filter_subparsers.add_parser('host', parents=[shared_parser, platform_parser, input_parser], argument_default=argparse.SUPPRESS)
         filter_host_parser.add_argument('--host_genome', nargs='*', type=lambda x: parser_path_check(filter_host_parser, valid_fasta, x))
 
-        filter_map_parser = filter_subparsers.add_parser('map', parents=[shared_parser, post_assembly_input_parser], argument_default=argparse.SUPPRESS)
+        filter_map_parser = filter_subparsers.add_parser('map', parents=[shared_parser, general_input_parser], argument_default=argparse.SUPPRESS)
         filter_map_parser.add_argument('--min_map_out_avg_cov', '-cov', nargs='?', type=float)
 
         filter_contigs_parser = filter_subparsers.add_parser('contigs', parents=[shared_parser, post_assembly_input_parser], argument_default=argparse.SUPPRESS)
         filter_contigs_parser.add_argument('--min_contig_length', '-l', nargs='?', type=float)
         
-        filter_blast_parser = filter_subparsers.add_parser('blast', parents=[shared_parser, post_assembly_input_parser], argument_default=argparse.SUPPRESS)
+        filter_blast_parser = filter_subparsers.add_parser('blast', parents=[shared_parser, general_input_parser], argument_default=argparse.SUPPRESS)
         filter_blast_parser.add_argument('--min_blast_aln_len', nargs='?', type=float)
-        filter_blast_parser.add_argument('--min_blast_aln_frac', nargs='?', type=float)
 
         map_parser = subparsers.add_parser('map', parents=[shared_parser, platform_parser, input_parser], argument_default=argparse.SUPPRESS)
         map_parser.add_argument('--ref', nargs='*', type=lambda x: parser_path_check(map_parser, valid_fasta, x))
         map_parser.add_argument('--file_ref', '-fr', nargs='?', type=lambda x: parser_path_check(map_parser, valid_fasta_list, x))
+        map_parser.add_argument('--dir_ref', '-dr', nargs='?', type=lambda x: parser_path_check(map_parser, valid_dir, x))
 
-        kmer_parser = subparsers.add_parser('kmer', parents=[shared_parser, platform_parser, input_parser], argument_default=argparse.SUPPRESS)
-        kmer_parser.add_argument('--tool', '-t', nargs='*', choices=['kraken2','kaiju'], default=['kraken2','kaiju'])
-        kmer_parser.add_argument('--kraken2_db', nargs='?', type=lambda x: parser_path_check(kmer_parser, valid_dir, x))
-        kmer_parser.add_argument('--kaiju_fmi', nargs='?', type=lambda x: parser_path_check(kmer_parser, valid_file, x))
-        kmer_parser.add_argument('--kaiju_nodes', nargs='?', type=lambda x: parser_path_check(kmer_parser, valid_file, x))
-        kmer_parser.add_argument('--kaiju_names', nargs='?', type=lambda x: parser_path_check(kmer_parser, valid_file, x))
+        tax_classify_parser = subparsers.add_parser('tax_classify', parents=[shared_parser, platform_parser, input_parser], argument_default=argparse.SUPPRESS)
+        tax_classify_parser.add_argument('--tool', '-t', nargs='*', choices=['kraken2'], default=['kraken2'])
+        tax_classify_parser.add_argument('--kraken2_db', nargs='?', type=lambda x: parser_path_check(tax_classify_parser, valid_dir, x))
 
         assembly_parser = subparsers.add_parser('assembly', parents=[shared_parser, platform_parser, input_parser], argument_default=argparse.SUPPRESS)
-        assembly_parser.add_argument('--tool', '-t', nargs='*', choices=['spades', 'megahit', 'canu', 'unicycler'], required=True)
+        assembly_parser.add_argument('--tool', '-t', nargs='*', choices=['spades', 'megahit', 'canu', 'flye'], required=True)
 
         polish_parser = subparsers.add_parser('polish', parents=[shared_parser, post_assembly_input_parser], argument_default=argparse.SUPPRESS)
         polish_parser.add_argument('--tool', '-t', nargs='*', choices=['racon', 'medaka'], default=['racon', 'medaka'])
@@ -182,29 +175,22 @@ class Parser:
         post_assembly_subparsers = post_assembly_parser.add_subparsers(dest='subtask', title='subtasks', description='valid subtasks', required=True)
 
         blast_parser = post_assembly_subparsers.add_parser('blast', parents=[shared_parser, post_assembly_input_parser], argument_default=argparse.SUPPRESS)
-        blast_parser.add_argument('--tool', '-t', nargs='*', choices=['blastn' ,'megablast', 'diamond'], default=['blastn' ,'megablast', 'diamond'])
+        blast_parser.add_argument('--tool', '-t', nargs='*', choices=['blastn' ,'megablast'], default=['blastn' ,'megablast'])
         blast_parser.add_argument('--blast_db_dir', '-d', nargs='?', type=lambda x: parser_path_check(blast_parser, valid_dir, x))
         blast_parser.add_argument('--blast_db_name', '-n', nargs='?')
-        blast_parser.add_argument('--diamond_db_dir', nargs='?', type=lambda x: parser_path_check(blast_parser, valid_dir, x))
-        blast_parser.add_argument('--diamond_db_name', nargs='?')
 
         zoonosis_parser = post_assembly_subparsers.add_parser('zoonosis', parents=[shared_parser, post_assembly_input_parser], argument_default=argparse.SUPPRESS)
         zoonosis_parser.add_argument('--tool', '-t', nargs='*', choices=['zoonotic_rank'], default='zoonotic_rank')
 
-        annotation_parser = post_assembly_subparsers.add_parser('annotation', parents=[shared_parser, post_assembly_input_parser], argument_default=argparse.SUPPRESS)
-        annotation_parser.add_argument('--tool', '-t', nargs='*', choices=['prokka'], default='prokka')
-
         post_assembly_all_parser = post_assembly_subparsers.add_parser('all', parents=[shared_parser, post_assembly_input_parser], argument_default=argparse.SUPPRESS)
         post_assembly_all_parser.add_argument('--blast_db_dir', '-d', nargs='?', type=lambda x: parser_path_check(post_assembly_all_parser, valid_dir, x))
         post_assembly_all_parser.add_argument('--blast_db_name', '-n', nargs='?')
-        post_assembly_all_parser.add_argument('--diamond_db_dir', nargs='?', type=lambda x: parser_path_check(post_assembly_all_parser, valid_dir, x))
-        post_assembly_all_parser.add_argument('--diamond_db_name', nargs='?')
         post_assembly_all_parser.add_argument('--taxonomizr_db', nargs='?', type=lambda x: parser_path_check(post_assembly_all_parser, valid_file, x))
         
         report_parser = subparsers.add_parser('report')
         report_subparsers = report_parser.add_subparsers(dest='subtask', title='subtasks', description='valid subtasks', required=True)
 
-        report_blast_parser = report_subparsers.add_parser('blast', parents=[shared_parser, post_assembly_input_parser], argument_default=argparse.SUPPRESS)
+        report_blast_parser = report_subparsers.add_parser('blast', parents=[shared_parser, general_input_parser], argument_default=argparse.SUPPRESS)
         report_blast_parser.add_argument('--taxonomizr_db', nargs='?', type=lambda x: parser_path_check(report_blast_parser, valid_file, x))
 
         end_to_end_parser = subparsers.add_parser('end_to_end', parents=[shared_parser, platform_parser, input_parser], argument_default=argparse.SUPPRESS)
@@ -212,8 +198,6 @@ class Parser:
 
         consensus_parser = subparsers.add_parser('consensus', parents=[shared_parser, platform_parser, input_parser], argument_default=argparse.SUPPRESS)
         consensus_parser.add_argument('--ref', nargs='*', type=lambda x: parser_path_check(consensus_parser, valid_fasta, x))
-        consensus_parser.add_argument('--cds', nargs='*', type=lambda x: parser_path_check(consensus_parser, valid_file, x))
-        consensus_parser.add_argument('--ref_cds', nargs='?', type=lambda x: parser_path_check(consensus_parser, valid_file, x))
         consensus_parser.add_argument('--low_cov_threshold', nargs='?', type=int)
         consensus_parser.add_argument('--variant_quality_threshold', nargs='?', type=int)
         consensus_parser.add_argument('--variant_depth_threshold', nargs='?', type=int)
@@ -241,14 +225,6 @@ class Parser:
         build_blast_parser.add_argument('--dbtype', nargs='?', choices=['prot', 'nucl'], required=True)
         build_blast_parser.add_argument('--accession2taxid', type=lambda x: parser_path_check(build_blast_parser, valid_file, x))
         build_blast_parser.add_argument('--parse_seqids', action='store_true')
-
-        build_diamond_parser = build_parsers.add_parser('diamond', parents = [build_shared_parser], argument_default=argparse.SUPPRESS)
-        build_diamond_parser.add_argument('--in', '-i', nargs='?', type=lambda x: parser_path_check(build_diamond_parser, valid_fasta, x), required=True)
-        build_diamond_parser.add_argument('--outdir', '-o', nargs='?', default='%s/diamond' % pkgs_dir)
-        build_diamond_parser.add_argument('--dbname', nargs='?', default='rvdb-prot')
-        build_diamond_parser.add_argument('--taxonmap', nargs='?', type=lambda x: parser_path_check(build_diamond_parser, valid_file, x))
-        build_diamond_parser.add_argument('--taxonnodes', nargs='?', type=lambda x: parser_path_check(build_diamond_parser, valid_file, x))
-        build_diamond_parser.add_argument('--taxonnames', nargs='?', type=lambda x: parser_path_check(build_diamond_parser, valid_file, x))
 
         build_taxonomizr_parser = build_parsers.add_parser('taxonomizr', parents = [build_shared_parser], argument_default=argparse.SUPPRESS)
         build_taxonomizr_parser.add_argument('--outdir', '-o', nargs='?', default='%s/taxonomizr'% pkgs_dir)

@@ -106,9 +106,6 @@ class DBDownloader:
                 url_d = {
                         'kraken2-standard' : 'https://genome-idx.s3.amazonaws.com/kraken/k2_standard_20210517.tar.gz',
                         'kraken2-viral' : 'https://genome-idx.s3.amazonaws.com/kraken/k2_viral_20210517.tar.gz',
-                        'kaiju-nr' : 'https://kaiju.binf.ku.dk/database/kaiju_db_nr_2021-02-24.tgz',
-                        'kaiju-viruses' : 'https://kaiju.binf.ku.dk/database/kaiju_db_viruses_2021-02-24.tgz',
-                        'kaiju-rvdb' : 'https://kaiju.binf.ku.dk/database/kaiju_db_rvdb_2021-03-05.tgz',
                         'rvdb' : 'https://rvdb.dbi.udel.edu/download/C-RVDBv23.0.fasta.gz',
                         'rvdb-prot' : 'https://rvdb-prot.pasteur.fr/files/U-RVDBv23.0-prot.fasta.xz',
                         'taxdump' : 'https://ftp.ncbi.nlm.nih.gov/pub/taxonomy/taxdump.tar.gz'

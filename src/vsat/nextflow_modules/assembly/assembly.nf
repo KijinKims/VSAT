@@ -12,10 +12,6 @@ workflow {
         } else if (params.platform == 'nanopore') {
             Channel.fromPath(params.x).set{fastx}
             contigs = assembly_nanopore(fastx)
-        } else { //hybrid
-            Channel.fromPath([params.x, params.x2]).buffer(size:2).set{fastq_pair}
-            Channel.fromPath(params.y).set{fastx}
-            contigs = assembly_hybrid(fastq_pair, fastx)
         }
 }
 
@@ -38,21 +34,11 @@ workflow assembly_nanopore {
         
         if (params.tool == "canu") {
             contigs = canu(fastx)
-        } else {
+        } else if (params.tool == "megahit") {
             contigs = megahit(fastx)
+        } else {
+            contigs = flye(fastx)
         }
-}
-
-workflow assembly_hybrid {
-    take:
-        fastq_pair
-        fastx
-    emit:
-        contigs
-    main:
-        
-        contigs = unicycler(fastq_pair, fastx)
-
 }
 
 process spades {
@@ -108,19 +94,22 @@ process canu {
     """
 }
 
-process unicycler {
-    tag "${params.prefix}:unicycler"
+process flye {
+    tag "${params.prefix}:flye"
     
     publishDir "${params.outdir}/assembly", mode: 'copy', saveAs: { filename -> "${params.prefix}.contigs.fasta"}
 
     input:
-        tuple path(pe1), path(pe2)
         path fastx
     output:
-        path "${params.prefix}/${params.prefix}.contigs.fasta"
+        path "${params.prefix}/assembly.fasta" optional true
     script:
-    //TO DO
-    """
-    unicycler 
-    """
+    if (params.flye_meta)
+        """
+        flye --nano-raw $fastx --out-dir $params.prefix --threads ${params.threads} --meta 
+        """
+    else
+        """
+        flye --nano-raw $fastx --out-dir $params.prefix --threads ${params.threads}
+        """
 }

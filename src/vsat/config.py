@@ -29,10 +29,7 @@ not_forwarded_to_nxf_args = [
 
 download_db_list = [
                     'kraken2-standard', 
-                    'kraken2-viral', 
-                    'kaiju-nr', 
-                    'kaiju-viruses', 
-                    'kaiju-rvdb',
+                    'kraken2-viral',
                     'refseq-viral',
                     'rvdb', 
                     'rvdb-prot', 

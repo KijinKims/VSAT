@@ -92,7 +92,9 @@ process host_map_single {
 process extract_not_mapped_reads_pair {
     tag "${params.prefix}:extract_not_mapped_reads_pair"
 
-    publishDir path: { params.saveHostFiltered ? "$params.outdir/filter_host" : null }, mode: 'copy'
+    if(params.saveHostFiltered){
+        publishDir path: "$params.outdir/filter_host", mode: 'copy'
+    }
         
     input:
         path bam
@@ -106,8 +108,10 @@ process extract_not_mapped_reads_pair {
 process extract_not_mapped_reads_single {
     tag "${params.prefix}:extract_not_mapped_reads_single"
 
-    publishDir path: { params.saveHostFiltered ? "$params.outdir/filter_host" : null }, mode: 'copy'
-        
+    if(params.saveHostFiltered){
+        publishDir path: "$params.outdir/filter_host", mode: 'copy'
+    }
+            
     input:
         path bam
         val ext

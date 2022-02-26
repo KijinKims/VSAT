@@ -75,3 +75,6 @@ vsat post_assembly all -x SRR13439799/polish/SRR13439799.polished_contigs.fasta 
 vsat end_to_end --platform nanopore -x SRR13439799_Sequecing_of_PR8_H1N1_culture_medium_1.fastq --prefix SRR13439799
 ```
 
+```bash
+vsat consensus --platform nanopore -x SRR13439799_Sequecing_of_PR8_H1N1_culture_medium_1.fastq --prefix SRR13439799 --ref KJ942813_influenza_A.fasta
+```

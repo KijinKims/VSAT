@@ -2,21 +2,16 @@ nextflow.enable.dsl=2
 
 workflow {
     main:
-
         if (params.platform == 'illumina') {
             Channel.fromPath([params.x, params.x2]).buffer(size:2).set{fastq_pair}
-            kmer_illumina(fastq_pair)
+            tax_classify_illumina(fastq_pair)
         } else if (params.platform == 'nanopore') {
             Channel.fromPath(params.x).set{fastx}
-            kmer_nanopore(fastx)
-        } else { //hybrid
-            Channel.fromPath([params.x, params.x2]).buffer(size:2).set{fastq_pair}
-            Channel.fromPath(params.y).set{fastx}
-            kmer_hybrid(fastq_pair, fastx)
+            tax_classify_nanopore(fastx)
         }
 }
 
-workflow kmer_illumina {
+workflow tax_classify_illumina {
     take:
         fastq_pair
 
@@ -34,20 +29,11 @@ workflow kmer_illumina {
             kreport2list(kraken2_pair.out)
             metacomp(kreport2list.out)
         }
-        
-        if ( tool.contains('kaiju') ) {
-            Channel.fromPath("${params.kaiju_fmi}").set{kaiju_fmi}
-            Channel.fromPath("${params.kaiju_nodes}").set{kaiju_nodes}
-            Channel.fromPath("${params.kaiju_names}").set{kaiju_names}
-            kaiju_pair(fastq_pair, kaiju_fmi, kaiju_nodes)
-            kaiju_krona_input = kaiju2krona(kaiju_pair.out, kaiju_nodes, kaiju_names)
-            krona_inputs = krona_inputs.concat(kaiju_krona_input[0])
-        }
 
         krona(krona_inputs)
 }
 
-workflow kmer_nanopore {
+workflow tax_classify_nanopore {
     take:
         fastx
 
@@ -64,15 +50,6 @@ workflow kmer_nanopore {
 
             kreport2list(kraken2_single.out)
             metacomp(kreport2list.out)
-        }
-        
-        if ( tool.contains('kaiju') ) {
-            Channel.fromPath("${params.kaiju_fmi}").set{kaiju_fmi}
-            Channel.fromPath("${params.kaiju_nodes}").set{kaiju_nodes}
-            Channel.fromPath("${params.kaiju_names}").set{kaiju_names}
-            kaiju_single(fastx, kaiju_fmi, kaiju_nodes)
-            kaiju_krona_input = kaiju2krona(kaiju_single.out, kaiju_nodes, kaiju_names)
-            krona_inputs = krona_inputs.concat(kaiju_krona_input[0])
         }
 
         krona(krona_inputs)
@@ -141,7 +118,7 @@ process kreport2list {
 process metacomp {
     tag "${params.prefix}:metacomp"
     
-    publishDir "${params.outdir}/kmer", mode: 'copy'
+    publishDir "${params.outdir}/tax_classify", mode: 'copy'
 
     input:
         path kraken_list
@@ -154,70 +131,15 @@ process metacomp {
     """
 }
 
-process kaiju_pair {
-    tag "${params.prefix}:kaiju_pair"
-
-    input:
-        tuple path(pe1), path(pe2)
-        path kaiju_fmi
-        path kaiju_nodes
-    output:
-        path "${params.prefix}.kaiju.out"
-    """
-    kaiju -f ${kaiju_fmi} \
-        -t ${kaiju_nodes} \
-        -i $pe1 -j $pe2 \
-        -o ${params.prefix}.kaiju.out \
-        -a ${params.kaiju_mode} -E ${params.kaiju_confidence_threshold} -z ${params.threads} -v
-    """
-}
-
-process kaiju_single {
-    tag "${params.prefix}:kaiju_single"
-
-    input:
-        path single
-        path kaiju_fmi
-        path kaiju_nodes
-    output:
-        path "${params.prefix}.kaiju.out"
-
-    """
-    kaiju -f ${kaiju_fmi} \
-        -t ${kaiju_nodes} \
-        -i $single\
-        -o ${params.prefix}.kaiju.out \
-        -a ${params.kaiju_mode} -E ${params.kaiju_confidence_threshold} -z ${params.threads} -v
-    """
-}
-
-process kaiju2krona {
-    tag "${params.prefix}:kaiju2krona"
-    publishDir "${params.outdir}/kmer", mode: 'copy', pattern: "${params.prefix}.kaiju_summary.tsv"
-
-    input:
-        path kraken_report
-        path kaiju_nodes
-        path kaiju_names
-    output:
-        tuple path("${params.prefix}.kaiju"), val("kaiju")
-        path "${params.prefix}.kaiju_summary.tsv"
-    """
-    kaiju2table -t ${kaiju_nodes} -n ${kaiju_names} -r species -e ${params.prefix}.kaiju.out -o ${params.prefix}.kaiju_summary.tsv 
-    kaiju2krona -t ${kaiju_nodes} -n ${kaiju_names} -i ${params.prefix}.kaiju.out -o ${params.prefix}.kaiju
-    """
-
-}
-
 process krona {
     tag "${params.prefix}:krona"
-    publishDir "${params.outdir}/kmer", mode: 'copy'
+    publishDir "${params.outdir}/tax_classify", mode: 'copy'
 
     input:
         tuple path(krona_input), val(tool)
     output:
-        path "${params.prefix}_${tool}.html"
+        path "${params.prefix}.${tool}.html"
     """
-    ktImportText $krona_input -o ${params.prefix}_${tool}.html
+    ktImportText $krona_input -o ${params.prefix}.${tool}.html
     """
 }
