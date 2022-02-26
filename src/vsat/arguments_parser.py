@@ -100,11 +100,11 @@ class Parser:
 
         nxf_script_dir = str(PurePath(os.path.dirname(os.path.realpath(__file__)), "nextflow_modules"))
 
-        if os.environ.get('BF_DB'):
-            pkgs_dir = os.environ.get('BF_DB')
+        if os.environ.get('VSAT_DB'):
+            pkgs_dir = os.environ.get('VSAT_DB')
         else:
-            pkgs_dir = str(PurePath(Path.home(),"BF_DB"))
-            os.environ['BF_DB'] = pkgs_dir
+            pkgs_dir = str(PurePath(Path.home(),"VSAT_DB"))
+            os.environ['VSAT_DB'] = pkgs_dir
         
 
         parser = argparse.ArgumentParser(prog='BunyaFinder', description='%(prog)s is a command line program for detection and analysis of Bunyavirus sequence.')
